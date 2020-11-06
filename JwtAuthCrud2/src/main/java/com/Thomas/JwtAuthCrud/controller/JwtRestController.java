@@ -53,7 +53,7 @@ public class JwtRestController {
 		if (user == null) {
 			return new ResponseEntity<String>("Could not find user with the id " + id, HttpStatus.NOT_FOUND);
 		}
-		return new ResponseEntity<String>("User created successfully.", HttpStatus.OK);
+		return new ResponseEntity<User>(user, HttpStatus.OK);
 	}
 	
 	@PutMapping("/{id}")
