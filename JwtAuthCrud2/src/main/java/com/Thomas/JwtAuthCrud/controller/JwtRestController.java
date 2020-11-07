@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.Thomas.JwtAuthCrud.dao.UserDao;
 import com.Thomas.JwtAuthCrud.model.User;
+import com.Thomas.JwtAuthCrud.service.UserService;
 
 
 @RestController
@@ -26,7 +27,7 @@ import com.Thomas.JwtAuthCrud.model.User;
 public class JwtRestController {
 
 	@Autowired
-	UserDao userDao;
+	UserService userService;
 
 	@GetMapping("/test")
 	public String test() {
@@ -35,21 +36,21 @@ public class JwtRestController {
 
 	@GetMapping("/all")
 	public List<User> getAllUsers() {
-		return userDao.getAllUsers();
+		return userService.getAllUsers();
 	}
 	
 	@PostMapping
 	public ResponseEntity<String> createUser(@RequestBody User user) throws SQLIntegrityConstraintViolationException {
-		if(userDao.findById(user.getId()) != null) {
+		if(userService.findById(user.getId()) != null) {
 			return new ResponseEntity<String>("User with the Id: " + user.getId() +" is being already used! ", HttpStatus.IM_USED);
 		}
-		userDao.saveUser(user);
+		userService.saveUser(user);
 		return ResponseEntity.status(HttpStatus.CREATED).build();
 	}
 
 	@GetMapping("/{id}")
 	public ResponseEntity<?> getUser(@PathVariable("id") Integer id) {
-		User user = userDao.findById(id);
+		User user = userService.findById(id);
 		if (user == null) {
 			return new ResponseEntity<String>("Could not find user with the id " + id, HttpStatus.NOT_FOUND);
 		}
@@ -59,20 +60,20 @@ public class JwtRestController {
 	@PutMapping("/{id}")
 	public ResponseEntity<?> updateUser(@RequestBody User user) {
 
-		if(userDao.findById(user.getId()) == null) {
+		if(userService.findById(user.getId()) == null) {
 			return new ResponseEntity<String>("Unable to update as user id: " + user.getId() + " is not found.", HttpStatus.NOT_FOUND);
 		}
-		userDao.updateUser(user);
+		userService.updateUser(user);
 		return new ResponseEntity<String>("User update successfully.", HttpStatus.OK);
 	}
 	
 	@DeleteMapping("/{id}")
 	public ResponseEntity<?> deleteUser(@PathVariable("id") Integer id) {
-		User user = userDao.findById(id);
+		User user = userService.findById(id);
 		if (user == null) {
 			return new ResponseEntity<String>("Could not delete user with the id " + id, HttpStatus.NOT_FOUND);
 		} 
-		userDao.deleteById(id);
+		userService.deleteById(id);
 		return new ResponseEntity<String>("User deleted successfully.", HttpStatus.OK);
 	}
 	

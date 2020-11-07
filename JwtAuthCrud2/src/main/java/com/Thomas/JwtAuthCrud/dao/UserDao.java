@@ -35,8 +35,8 @@ public class UserDao {
 		}
 	}
 
-	public Integer deleteById(int id) {
-		return jdbcTemplate.update("delete from user where id = ?", id);
+	public void deleteById(int id) {
+		jdbcTemplate.update("delete from user where id = ?", id);
 	}
 
 //	public Boolean saveUser(User user) {
@@ -63,11 +63,11 @@ public class UserDao {
 		jdbcTemplate.update("insert into user values(?,?,?,?,?,?)",params);
 	}
 
-	public Integer updateUser(User user) {
+	public void updateUser(User user) {
 				String query = "update user set login = ?, password = ?, fname = ?, lname = ?, email =? where Id=?";
 				Object[] params = {user.getLogin(), user.getPassword(), user.getFname(), user.getLname(), user.getEmail(),user.getId()};
 				int[] types = { Types.VARCHAR, Types.VARCHAR, Types.VARCHAR, Types.VARCHAR, Types.VARCHAR, Types.INTEGER};
 				
-				return jdbcTemplate.update(query, params,types);
+				jdbcTemplate.update(query, params,types);
 	}
 }

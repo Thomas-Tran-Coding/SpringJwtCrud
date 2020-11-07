@@ -15,7 +15,7 @@ public class UserService {
 	@Autowired
 	UserDao userDao;
 	
-	public List<User> getUser() {
+	public List<User> getAllUsers() {
 		return userDao.getAllUsers();
 	}
 	
@@ -31,8 +31,8 @@ public class UserService {
 		userDao.saveUser(user);
 	}
 	
-	public int updateUser(User user) {
-		return userDao.updateUser(user);
+	public void updateUser(User user) {
+		userDao.updateUser(user);
 	}
-	
+
 }
