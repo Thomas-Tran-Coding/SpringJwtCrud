@@ -19,8 +19,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.Thomas.JwtAuthCrud.dao.UserDao;
 import com.Thomas.JwtAuthCrud.model.Role;
+import com.Thomas.JwtAuthCrud.security.services.UserService;
 import com.Thomas.JwtAuthCrud.model.AppUser;
-import com.Thomas.JwtAuthCrud.service.UserService;
 
 
 @RestController

@@ -1,4 +1,4 @@
-package com.Thomas.JwtAuthCrud.util;
+package com.Thomas.JwtAuthCrud.security.jwt;
 
 import java.util.Date;
 import java.util.HashMap;

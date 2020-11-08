@@ -1,4 +1,4 @@
-package com.Thomas.JwtAuthCrud.config;
+package com.Thomas.JwtAuthCrud.security;
 
 import javax.sql.DataSource;
 
@@ -12,7 +12,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import com.Thomas.JwtAuthCrud.service.MyUserDetailsService;
+import com.Thomas.JwtAuthCrud.security.services.MyUserDetailsService;
 
 @EnableWebSecurity
 public class SecurityConfigurer extends WebSecurityConfigurerAdapter  {

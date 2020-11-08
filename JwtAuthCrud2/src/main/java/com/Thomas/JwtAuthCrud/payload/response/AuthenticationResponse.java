@@ -1,4 +1,4 @@
-package com.Thomas.JwtAuthCrud.response;
+package com.Thomas.JwtAuthCrud.payload.response;
 
 public class AuthenticationResponse {
 

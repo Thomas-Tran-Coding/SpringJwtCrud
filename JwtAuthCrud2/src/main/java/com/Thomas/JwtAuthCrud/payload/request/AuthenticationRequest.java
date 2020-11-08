@@ -1,4 +1,4 @@
-package com.Thomas.JwtAuthCrud.request;
+package com.Thomas.JwtAuthCrud.payload.request;
 
 public class AuthenticationRequest {
 

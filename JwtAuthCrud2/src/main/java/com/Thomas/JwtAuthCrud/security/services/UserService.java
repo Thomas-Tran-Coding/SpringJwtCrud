@@ -1,4 +1,4 @@
-package com.Thomas.JwtAuthCrud.service;
+package com.Thomas.JwtAuthCrud.security.services;
 
 import java.util.Collection;
 import java.util.List;

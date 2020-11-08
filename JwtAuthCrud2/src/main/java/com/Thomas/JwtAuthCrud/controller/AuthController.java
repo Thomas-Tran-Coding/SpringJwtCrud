@@ -11,10 +11,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.Thomas.JwtAuthCrud.request.AuthenticationRequest;
-import com.Thomas.JwtAuthCrud.response.AuthenticationResponse;
-import com.Thomas.JwtAuthCrud.service.MyUserDetailsService;
-import com.Thomas.JwtAuthCrud.util.JwtUtil;
+import com.Thomas.JwtAuthCrud.payload.request.AuthenticationRequest;
+import com.Thomas.JwtAuthCrud.payload.response.AuthenticationResponse;
+import com.Thomas.JwtAuthCrud.security.jwt.JwtUtil;
+import com.Thomas.JwtAuthCrud.security.services.MyUserDetailsService;
 
 @RestController
 public class AuthController {
