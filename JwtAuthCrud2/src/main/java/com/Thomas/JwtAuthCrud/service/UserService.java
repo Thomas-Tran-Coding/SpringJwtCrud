@@ -1,12 +1,15 @@
 package com.Thomas.JwtAuthCrud.service;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 
 import com.Thomas.JwtAuthCrud.dao.UserDao;
-import com.Thomas.JwtAuthCrud.model.User;
+import com.Thomas.JwtAuthCrud.model.Role;
+import com.Thomas.JwtAuthCrud.model.AppUser;
 
 @Service
 public class UserService {
@@ -15,11 +18,11 @@ public class UserService {
 	@Autowired
 	UserDao userDao;
 	
-	public List<User> getAllUsers() {
+	public List<AppUser> getAllUsers() {
 		return userDao.getAllUsers();
 	}
 	
-	public User findById(int id) {
+	public AppUser findById(int id) {
 		return userDao.findById(id);
 	}
 	
@@ -27,12 +30,28 @@ public class UserService {
 		userDao.deleteById(id);
 	}
 	
-	public void saveUser(User user) {
+	public void saveUser(AppUser user) {
 		userDao.saveUser(user);
 	}
 	
-	public void updateUser(User user) {
+	public void updateUser(AppUser user) {
 		userDao.updateUser(user);
 	}
+	
+	public Role findUserRole(int id) {
+		return userDao.findUserRole(id);
+	}
 
+	public AppUser findByLogin(String login) {
+		return userDao.findByLogin(login);
+	}
+	
+	public Collection<GrantedAuthority> dbToString(int id) {
+		return userDao.dbToString(id);
+	}
+	
+	public AppUser findByUsername(String login){
+		return userDao.findByUsername(login);
+	}
+	
 }

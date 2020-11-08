@@ -2,7 +2,7 @@ package com.Thomas.JwtAuthCrud.model;
 
 import java.io.Serializable;
 
-public class User implements Serializable {
+public class AppUser implements Serializable {
 
 	private int id;
 
@@ -15,12 +15,12 @@ public class User implements Serializable {
 	private String lname;
 
 	private String email;
-
-	public User() {
+	
+	public AppUser() {
 
 	}
 
-	public User(int id, String login, String password, String fname, String lname, String email) {
+	public AppUser(int id, String login, String password, String fname, String lname, String email) {
 		this.id = id;
 		this.login = login;
 		this.password = password;

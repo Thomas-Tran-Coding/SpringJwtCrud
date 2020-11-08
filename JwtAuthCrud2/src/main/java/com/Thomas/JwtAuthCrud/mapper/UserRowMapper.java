@@ -5,13 +5,13 @@ import java.sql.SQLException;
 
 import org.springframework.jdbc.core.RowMapper;
 
-import com.Thomas.JwtAuthCrud.model.User;
+import com.Thomas.JwtAuthCrud.model.AppUser;
 
-public class UserRowMapper implements RowMapper<User>{
+public class UserRowMapper implements RowMapper<AppUser>{
 
 	@Override
-	public User mapRow(ResultSet rs, int rowNum) throws SQLException {
-		User user = new User();
+	public AppUser mapRow(ResultSet rs, int rowNum) throws SQLException {
+		AppUser user = new AppUser();
 		user.setId(rs.getInt("id"));
 		user.setFname(rs.getString("fname"));
 		user.setLname(rs.getString("lname"));
