@@ -50,8 +50,8 @@ public class UserService {
 		return userDao.getAuthorityRolesById(id);
 	}
 	
-	public AppUser findByUsername(String login){
-		return userDao.findByUsername(login);
+	public AppUser findByEmail(String email) {
+		return userDao.findByEmail(email);
 	}
 	
 }

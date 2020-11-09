@@ -17,6 +17,9 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.Thomas.JwtAuthCrud.security.services.MyUserDetailsService;
 
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.SignatureException;
+
 @Component
 public class JwtRequestFilter extends OncePerRequestFilter {
 
@@ -36,9 +39,20 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 		String jwt = null;
 		
 		if(authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-			jwt = authorizationHeader.substring(7);
-			username = jwtUtil.extractUsername(jwt);
-		}
+			try {
+				jwt = authorizationHeader.substring(7);
+				username = jwtUtil.extractUsername(jwt);
+			} catch (IllegalArgumentException e) {
+                logger.error("ERROR: An error occured during getting username from token", e);
+            } catch (ExpiredJwtException e) {
+                logger.error("ERROR: The token is expired and not valid anymore", e);
+            } catch(SignatureException e){
+                logger.error("ERROR: Authentication failed. Username or Password not valid.");
+            }
+			
+		} else {
+            logger.error("ERROR: Couldn't find bearer string, will ignore the header");
+        }
 		
 		if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 			UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);

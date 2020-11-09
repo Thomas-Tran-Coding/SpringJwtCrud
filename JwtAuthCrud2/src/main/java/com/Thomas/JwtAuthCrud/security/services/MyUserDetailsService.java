@@ -25,13 +25,12 @@ public class MyUserDetailsService  implements UserDetailsService {
 	
 	@Override
 	public UserDetails loadUserByUsername(String login) throws UsernameNotFoundException {
-		AppUser user = userService.findByUsername(login);
+		AppUser user = userService.findByLogin(login);
 		
 		
 		List<GrantedAuthority> grantedAuthorities = (List<GrantedAuthority>) userService.getAuthorityRolesById(user.getId());
 	
 		return new User(user.getLogin(), user.getPassword(), grantedAuthorities);
-//		return new User("foo", "foo", new ArrayList<>());
 	}
 	
 

@@ -33,8 +33,6 @@ public class UserDao {
 	@Autowired
 	JdbcTemplate jdbcTemplate;
 	
-	@Autowired
-	PasswordEncoder encoder;
 
 	public List<AppUser> getAllUsers() {
 		return jdbcTemplate.query("SELECT id, login, password, fname, lname, email from user ", new UserRowMapper());
@@ -53,34 +51,16 @@ public class UserDao {
 		jdbcTemplate.update("delete from user where id = ?", id);
 	}
 
-//	public Boolean saveUser(User user) {
-//		return jdbcTemplate.execute("insert into user values(?,?,?,?,?,?)", new PreparedStatementCallback<Boolean>() {
-//
-//			@Override
-//			public Boolean doInPreparedStatement(PreparedStatement ps) throws SQLException, DataAccessException {
-//
-//				ps.setInt(1, user.getId());
-//				ps.setString(2, user.getLogin());
-//				ps.setString(3, user.getPassword());
-//				ps.setString(4, user.getFname());
-//				ps.setString(5, user.getLname());
-//				ps.setString(6, user.getEmail());
-//				
-//				return ps.execute(); 
-//			}
-//		});
-//
-//	}
 
 	public void saveUser(AppUser user) {
-		Object[] params = { user.getId(), user.getLogin(), user.getPassword(), user.getFname(), user.getLname(),
+		Object[] params = { user.getId(), user.getLogin(),  user.getPassword(), user.getFname(), user.getLname(),
 				user.getEmail() };
 		jdbcTemplate.update("insert into user values(?,?,?,?,?,?)", params);
 	}
 
 	public void updateUser(AppUser user) {
 		String query = "update user set login = ?, password = ?, fname = ?, lname = ?, email =? where Id=?";
-		Object[] params = { user.getLogin(), encoder.encode(user.getPassword()), user.getFname(), user.getLname(), user.getEmail(),
+		Object[] params = { user.getLogin(), user.getPassword(), user.getFname(), user.getLname(), user.getEmail(),
 				user.getId() };
 		int[] types = { Types.VARCHAR, Types.VARCHAR, Types.VARCHAR, Types.VARCHAR, Types.VARCHAR, Types.INTEGER };
 
@@ -91,16 +71,6 @@ public class UserDao {
 		try {
 			return (Role) this.jdbcTemplate.queryForObject("select * from role where id = ?", new Object[] { id },
 					new RoleRowMapper());
-		} catch (EmptyResultDataAccessException ex) {
-			return null;
-		}
-	}
-
-	public AppUser findByLogin(String login) {
-		try {
-			AppUser user = this.jdbcTemplate.queryForObject("select * from user where login = ?", new Object[] { login },
-					new UserRowMapper());
-			return user;
 		} catch (EmptyResultDataAccessException ex) {
 			return null;
 		}
@@ -159,7 +129,7 @@ public class UserDao {
 	}
 	
 	
-	   public AppUser findByUsername(String login) {
+	   public AppUser findByLogin(String login) {
 		   AppUser user = jdbcTemplate.query(new PreparedStatementCreator() {
 	 
 	            @Override
@@ -186,9 +156,41 @@ public class UserDao {
 	        if (user != null) {
 	            return user;
 	        } else {
-	            System.out.println("Kein User unter diesem Namen gefunden!");
 	            return null;
 	        }
 	    }
+	   
+	   public AppUser findByEmail(String email) {
+		   AppUser user = jdbcTemplate.query(new PreparedStatementCreator() {
+	 
+	            @Override
+	            // preparedStatement for executing a statement many times, prevents sql injection attacks, preparedstatement is executed without having to be compiled first
+	            // get all users
+	            public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
+	                PreparedStatement ps = con.prepareStatement("select * from user where email=?");
+	                // int 1 => first argument placeholder
+	                ps.setString(1, email);
+	                return ps;
+	            }
+	        }, new ResultSetExtractor<AppUser>() {
+	            @Override
+	            public AppUser extractData(ResultSet rs) throws SQLException, DataAccessException {
+	            	// iterate through every row/user 
+	                if (rs.next()) {
+	                    AppUser user = new AppUser(rs.getInt("id"), rs.getString("login"), rs.getString("password"), rs.getString("fname"), rs.getString("lname"), rs.getString("email"));
+	                    return user;
+	                } else {
+	                    return null;
+	                }
+	            }
+	        });
+	        if (user != null) {
+	            return user;
+	        } else {
+	            return null;
+	        }
+	    }
+
+
 
 }
