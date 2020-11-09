@@ -19,6 +19,7 @@ import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Repository;
 
 import com.Thomas.JwtAuthCrud.mapper.RoleRowMapper;
@@ -31,9 +32,12 @@ public class UserDao {
 
 	@Autowired
 	JdbcTemplate jdbcTemplate;
+	
+	@Autowired
+	PasswordEncoder encoder;
 
 	public List<AppUser> getAllUsers() {
-		return jdbcTemplate.query("SELECT id, fname, lname, email from user ", new UserRowMapper());
+		return jdbcTemplate.query("SELECT id, login, password, fname, lname, email from user ", new UserRowMapper());
 	}
 
 	public AppUser findById(int id) {
@@ -76,7 +80,7 @@ public class UserDao {
 
 	public void updateUser(AppUser user) {
 		String query = "update user set login = ?, password = ?, fname = ?, lname = ?, email =? where Id=?";
-		Object[] params = { user.getLogin(), user.getPassword(), user.getFname(), user.getLname(), user.getEmail(),
+		Object[] params = { user.getLogin(), encoder.encode(user.getPassword()), user.getFname(), user.getLname(), user.getEmail(),
 				user.getId() };
 		int[] types = { Types.VARCHAR, Types.VARCHAR, Types.VARCHAR, Types.VARCHAR, Types.VARCHAR, Types.INTEGER };
 
@@ -102,7 +106,7 @@ public class UserDao {
 		}
 	}
 
-	public Collection<GrantedAuthority> dbToString(int id) {
+	public Collection<GrantedAuthority> getAuthorityRolesById(int id) {
 		List<Short> shortRoles = new ArrayList<Short>();
 		List<GrantedAuthority> grantedAuthorities = new ArrayList<GrantedAuthority>();
 
@@ -120,35 +124,34 @@ public class UserDao {
 			shortRoles.add(role.getRole_purchase_write());
 			shortRoles.add(role.getRole_sale_write());
 			shortRoles.add(role.getRole_sql());
-
-			for (Short shortValue : shortRoles) {
-				int count = 0;
-				if (count == 0 && shortValue == 1) {
+			
+			for(int count = 0; count < shortRoles.size(); count++) {
+				
+				if (count == 0 && shortRoles.get(count) == 1) {
 					grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
-				} else if (count == 1 && shortValue == 1) {
+				} else if (count == 1 && shortRoles.get(count) == 1) {
 					grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_DEVELOP"));
-				} else if (count == 2 && shortValue == 1) {
+				} else if (count == 2 && shortRoles.get(count) == 1) {
 					grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_CCTID"));
-				} else if (count == 3 && shortValue == 1) {
+				} else if (count == 3 && shortRoles.get(count) == 1) {
 					grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_GTID"));
-				} else if (count == 4 && shortValue == 1) {
+				} else if (count == 4 && shortRoles.get(count) == 1) {
 					grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_BILLING"));
-				} else if (count == 5 && shortValue == 1) {
+				} else if (count == 5 && shortRoles.get(count) == 1) {
 					grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_REGISTRY"));
-				} else if (count == 6 && shortValue == 1) {
+				} else if (count == 6 && shortRoles.get(count) == 1) {
 					grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_PURCHASE_READ"));
-				} else if (count == 7 && shortValue == 1) {
+				} else if (count == 7 && shortRoles.get(count) == 1) {
 					grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_PURCHASE_WRITE"));
-				} else if (count == 8 && shortValue == 1) {
+				} else if (count == 8 && shortRoles.get(count) == 1) {
 					grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_SALE_WRITE"));
-				} else if (count == 9 && shortValue == 1) {
+				} else if (count == 9 && shortRoles.get(count) == 1) {
 					grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_SQL"));
 				} else {
-					continue;
 				}
-
-				count++;
+				
 			}
+		
 		} catch (EmptyResultDataAccessException ex) {
 			return null;
 		}

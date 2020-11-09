@@ -1,6 +1,8 @@
 package com.Thomas.JwtAuthCrud.controller;
 
 import java.sql.SQLIntegrityConstraintViolationException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
@@ -8,6 +10,7 @@ import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -30,12 +33,7 @@ public class JwtRestController {
 	@Autowired
 	UserService userService;
 
-	@GetMapping("/test")
-	public String test() {
-		return "It works!";
-	}
-
-	@GetMapping("/all")
+	@GetMapping()
 	public List<AppUser> getAllUsers() {
 		return userService.getAllUsers();
 	}
@@ -78,23 +76,23 @@ public class JwtRestController {
 		return new ResponseEntity<String>("User deleted successfully.", HttpStatus.OK);
 	}
 	
-	@GetMapping("/role/{id}")
-	public ResponseEntity<?> findWholeUser(@PathVariable("id") Integer id) {
-		Role role = userService.findUserRole(id);
-		if(role == null ) {
-			return new ResponseEntity<String>("Could not find user with the id " + id, HttpStatus.NOT_FOUND);
-		}
-		return new ResponseEntity<Role>(role, HttpStatus.OK);
-	}
-	
 	@GetMapping("/hans/{login}")
 	public ResponseEntity<?> findLoginUser(@PathVariable("login") String login) {
-		AppUser user = userService.findByLogin(login);
+		AppUser user = userService.findByUsername(login);
 		if(user == null ) {
 			return new ResponseEntity<String>("Could not find user with the login " + login, HttpStatus.NOT_FOUND);
 		}
 		return new ResponseEntity<AppUser>(user, HttpStatus.OK);
 	}
 	
+	@GetMapping("/hansi/{id}")
+	public ResponseEntity<?> getRolesById(@PathVariable("id") Integer id) {
+		AppUser user = userService.findById(id);
+		Collection<GrantedAuthority> grantedAuthorities = userService.getAuthorityRolesById(id);
+		if (user == null) {
+			return new ResponseEntity<String>("Could not find authority roles for user with the id " + id, HttpStatus.NOT_FOUND);
+		}
+		return new ResponseEntity<Collection>( grantedAuthorities, HttpStatus.OK);
+	}
 	
 }

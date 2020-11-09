@@ -46,8 +46,8 @@ public class UserService {
 		return userDao.findByLogin(login);
 	}
 	
-	public Collection<GrantedAuthority> dbToString(int id) {
-		return userDao.dbToString(id);
+	public Collection<GrantedAuthority> getAuthorityRolesById(int id) {
+		return userDao.getAuthorityRolesById(id);
 	}
 	
 	public AppUser findByUsername(String login){

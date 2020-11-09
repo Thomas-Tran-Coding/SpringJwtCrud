@@ -28,7 +28,7 @@ public class MyUserDetailsService  implements UserDetailsService {
 		AppUser user = userService.findByUsername(login);
 		
 		
-		List<GrantedAuthority> grantedAuthorities = (List<GrantedAuthority>) userService.dbToString(user.getId());
+		List<GrantedAuthority> grantedAuthorities = (List<GrantedAuthority>) userService.getAuthorityRolesById(user.getId());
 	
 		return new User(user.getLogin(), user.getPassword(), grantedAuthorities);
 //		return new User("foo", "foo", new ArrayList<>());
