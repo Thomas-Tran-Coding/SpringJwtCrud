@@ -22,7 +22,6 @@ import com.Thomas.JwtAuthCrud.security.jwt.JwtUtil;
 import com.Thomas.JwtAuthCrud.security.services.UserService;
 
 import com.Thomas.JwtAuthCrud.model.AppUser;
-
 @RestController
 @RequestMapping("/user")
 public class JwtRestController {
@@ -39,12 +38,13 @@ public class JwtRestController {
 	JwtUtil jwtUtil;
 	//
 
+	// get all users
 	@GetMapping()
 	public List<AppUser> getAllUsers() {
 		return userService.getAllUsers();
 	}
 
-//	//CREATE createUser
+//	//create a new user
 	@PostMapping("/signup")
 	public ResponseEntity<?> registerUser(@RequestBody AppUser signUpRequest) {
 
@@ -59,9 +59,13 @@ public class JwtRestController {
 		}
 
 		// Create new user's account
-		AppUser user = new AppUser(signUpRequest.getId(), signUpRequest.getLogin(),
-				encoder.encode(signUpRequest.getPassword()), signUpRequest.getFname(), signUpRequest.getLname(),
-				signUpRequest.getEmail());
+		AppUser user = new AppUser( signUpRequest.getId(), 
+									signUpRequest.getLogin(),
+									encoder.encode(signUpRequest.getPassword()), 
+									signUpRequest.getFname(), 
+									signUpRequest.getLname(),
+									signUpRequest.getEmail(),
+									signUpRequest.getRole());
 
 		userService.saveUser(user);
 
@@ -69,18 +73,20 @@ public class JwtRestController {
 
 	}
 
-	// GET findById
+	// find user by ID
 	@GetMapping("/{id}")
 	public ResponseEntity<?> getUser(@PathVariable("id") Integer id) {
 		AppUser user = userService.findById(id);
 		if (user == null) {
-			return new ResponseEntity<String>("ERROR: User with Id: " + id + " could not be found!",
+			return new ResponseEntity<String>("ERROR: Could not find user with the id " + id,
 					HttpStatus.NOT_FOUND);
 		}
 		return new ResponseEntity<AppUser>(user, HttpStatus.OK);
 	}
+	
+	
 
-	// UPDATE updateUser
+	// update user attributes
 	@PutMapping("/{id}")
 	public ResponseEntity<?> updateUser(@RequestBody AppUser updateRequest) {
 
@@ -88,16 +94,20 @@ public class JwtRestController {
 			return new ResponseEntity<String>("ERROR: User with Id: " + updateRequest.getId() + " could not found.",
 					HttpStatus.NOT_FOUND);
 		}
-
-		AppUser updatedUser = new AppUser(updateRequest.getId(), updateRequest.getLogin(),
-				encoder.encode(updateRequest.getPassword()), updateRequest.getFname(), updateRequest.getLname(),
-				updateRequest.getEmail());
+		// update user
+		AppUser updatedUser = new AppUser(  updateRequest.getId(), 
+											updateRequest.getLogin(),
+											encoder.encode(updateRequest.getPassword()), 
+											updateRequest.getFname(), 
+											updateRequest.getLname(),
+											updateRequest.getEmail(),
+											updateRequest.getRole());
 
 		userService.updateUser(updatedUser);
 		return new ResponseEntity<String>("User update successfully!", HttpStatus.OK);
 	}
 
-	// DELETE deleteById
+	// delete user by ID
 	@DeleteMapping("/{id}")
 	public ResponseEntity<?> deleteUser(@PathVariable("id") Integer id) {
 		AppUser user = userService.findById(id);
@@ -127,6 +137,16 @@ public class JwtRestController {
 					HttpStatus.NOT_FOUND);
 		}
 		return new ResponseEntity<Collection>(grantedAuthorities, HttpStatus.OK);
+	}
+	
+	@GetMapping("/getUser/{id}")
+	public ResponseEntity<?> getWholeUser(@PathVariable("id") Integer id) {
+		AppUser user = userService.findById(id);
+		if (user == null) {
+			return new ResponseEntity<String>("ERROR: Could not find authority roles for user with the id " + id,
+					HttpStatus.NOT_FOUND);
+		}
+		return new ResponseEntity<AppUser>(user, HttpStatus.OK);
 	}
 
 }

@@ -6,10 +6,7 @@ public class AuthenticationRequest {
 
 	private String password;
 
-	// default constructor for serialization
-	public AuthenticationRequest() {
 
-	}
 
 	public AuthenticationRequest(String login, String password) {
 		this.login = login;

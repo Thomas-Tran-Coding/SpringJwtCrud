@@ -2,6 +2,7 @@ package com.Thomas.JwtAuthCrud.security;
 
 import javax.sql.DataSource;
 
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -18,6 +19,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import com.Thomas.JwtAuthCrud.security.jwt.JwtRequestFilter;
 import com.Thomas.JwtAuthCrud.security.jwt.JwtUtil;
 import com.Thomas.JwtAuthCrud.security.services.MyUserDetailsService;
+
 
 @EnableWebSecurity
 public class SecurityConfigurer extends WebSecurityConfigurerAdapter  {
@@ -45,7 +47,7 @@ public class SecurityConfigurer extends WebSecurityConfigurerAdapter  {
 	protected void configure(HttpSecurity http) throws Exception {
 		http.csrf().disable()
 			.authorizeRequests()
-			.antMatchers("/authenticate").permitAll()
+			.antMatchers("/authenticate", "/user/signup").permitAll()
 			.anyRequest().authenticated()
 			.and()
 			.sessionManagement()

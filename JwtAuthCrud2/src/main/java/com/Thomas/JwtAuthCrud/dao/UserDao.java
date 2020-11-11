@@ -12,6 +12,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
@@ -22,6 +23,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Repository;
 
+import com.Thomas.JwtAuthCrud.mapper.ResultRowMapper;
 import com.Thomas.JwtAuthCrud.mapper.RoleRowMapper;
 import com.Thomas.JwtAuthCrud.mapper.UserRowMapper;
 import com.Thomas.JwtAuthCrud.model.Role;
@@ -33,40 +35,65 @@ public class UserDao {
 	@Autowired
 	JdbcTemplate jdbcTemplate;
 	
+	// get all users
 
 	public List<AppUser> getAllUsers() {
-		return jdbcTemplate.query("SELECT id, login, password, fname, lname, email from user ", new UserRowMapper());
-	}
-
-	public AppUser findById(int id) {
 		try {
-			return (AppUser) this.jdbcTemplate.queryForObject("select * from user where id = ?", new Object[] { id },
-					new UserRowMapper());
+			return jdbcTemplate.query("SELECT * FROM user,role where user.id = role.user_id", new ResultRowMapper());
 		} catch (EmptyResultDataAccessException ex) {
 			return null;
 		}
 	}
 
+	// find a user by ID
+	public AppUser findById(int id) {
+		try {
+			return (AppUser) jdbcTemplate.queryForObject("SELECT * FROM user,role where user.id = role.user_id and role.user_id = ?", new Object[] { id }, new ResultRowMapper());
+		} catch (EmptyResultDataAccessException ex) {
+			return null;
+		}
+	}
+
+	// delete a user by ID
 	public void deleteById(int id) {
 		jdbcTemplate.update("delete from user where id = ?", id);
 	}
 
-
+	// save user by ID
 	public void saveUser(AppUser user) {
-		Object[] params = { user.getId(), user.getLogin(),  user.getPassword(), user.getFname(), user.getLname(),
-				user.getEmail() };
-		jdbcTemplate.update("insert into user values(?,?,?,?,?,?)", params);
+		try {
+			Object[] userParams = { user.getId(), 
+									user.getLogin(),  
+									user.getPassword(), 
+									user.getFname(), 
+									user.getLname(),
+									user.getEmail()};
+			jdbcTemplate.update("insert into user values(?,?,?,?,?,?)", userParams);
+			
+			Object[] roleParams = { user.getRole().getId(), 
+									user.getRole().getUserId(), 
+									user.getRole().getRole_admin(), 
+									user.getRole().getRole_develop(), 
+									user.getRole().getRole_cctid(), 
+									user.getRole().getRole_gtid(), 
+									user.getRole().getRole_billing(),
+									user.getRole().getRole_registry(),
+									user.getRole().getRole_purchase_read(), 
+									user.getRole().getRole_purchase_write(), 
+									user.getRole().getRole_sale_write(), 
+									user.getRole().getRole_sql() };
+			
+			jdbcTemplate.update("insert into role values(?,?,?,?,?,?,?,?,?,?,?,?)", roleParams);
+		} catch(EmptyResultDataAccessException e) {
+	        throw new RuntimeException("User ID does not exist");
+		} catch(IncorrectResultSizeDataAccessException e) {
+			  throw new RuntimeException("More than one users with the same Id .......");
+		}
+	      
 	}
 
-	public void updateUser(AppUser user) {
-		String query = "update user set login = ?, password = ?, fname = ?, lname = ?, email =? where Id=?";
-		Object[] params = { user.getLogin(), user.getPassword(), user.getFname(), user.getLname(), user.getEmail(),
-				user.getId() };
-		int[] types = { Types.VARCHAR, Types.VARCHAR, Types.VARCHAR, Types.VARCHAR, Types.VARCHAR, Types.INTEGER };
 
-		jdbcTemplate.update(query, params, types);
-	}
-
+	// find user role by ID
 	public Role findUserRole(int id) {
 		try {
 			return (Role) this.jdbcTemplate.queryForObject("select * from role where id = ?", new Object[] { id },
@@ -76,6 +103,7 @@ public class UserDao {
 		}
 	}
 
+	// get roles of a user in a collection
 	public Collection<GrantedAuthority> getAuthorityRolesById(int id) {
 		List<Short> shortRoles = new ArrayList<Short>();
 		List<GrantedAuthority> grantedAuthorities = new ArrayList<GrantedAuthority>();
@@ -127,69 +155,120 @@ public class UserDao {
 		}
 		return grantedAuthorities;
 	}
+	// find user by login 
+	public AppUser findByLogin(String login) {
+		try {
+			return (AppUser) jdbcTemplate.queryForObject("select * from user where user.login = ?", new Object[] { login }, new UserRowMapper());
+		} catch (EmptyResultDataAccessException ex) {
+			return null;
+		}
+	}
 	
+	// find a user by email
+	public AppUser findByEmail(String email) {
+		try {
+			return (AppUser) jdbcTemplate.queryForObject("select * from user where user.email = ?", new Object[] { email }, new UserRowMapper());
+		} catch (EmptyResultDataAccessException ex) {
+			return null;
+		}	
+	}
+
+	// update a user
+	public void updateUser(AppUser user) {
+		try {
+			Object[] userParams = { user.getLogin(),  
+									user.getPassword(), 
+									user.getFname(), 
+									user.getLname(),
+									user.getEmail(),
+									user.getId(),};
+			jdbcTemplate.update("update user set login = ?, password = ?, fname = ?, lname = ?, email =? where Id=?", userParams);
+			
+			Object[] roleParams = { user.getRole().getId(), 
+									user.getRole().getRole_admin(), 
+									user.getRole().getRole_develop(), 
+									user.getRole().getRole_cctid(), 
+									user.getRole().getRole_gtid(), 
+									user.getRole().getRole_billing(),
+									user.getRole().getRole_registry(),
+									user.getRole().getRole_purchase_read(), 
+									user.getRole().getRole_purchase_write(), 
+									user.getRole().getRole_sale_write(), 
+									user.getRole().getRole_sql(),
+									user.getRole().getUserId(), };
+			
+			jdbcTemplate.update("update role set id = ?, role_admin = ?, role_develop = ?, role_cctld = ?, role_gtld = ?, role_billing = ?, role_registry = ?, role_purchase_read = ?, role_purchase_write = ?, role_sale_write = ?, role_sql = ? where user_id = ?", roleParams);
+		} catch(EmptyResultDataAccessException e) {
+	        throw new RuntimeException("User ID does not exist");
+		} catch(IncorrectResultSizeDataAccessException e) {
+			  throw new RuntimeException("More than one users with the same Id .......");
+		}
+		
+	}
 	
-	   public AppUser findByLogin(String login) {
-		   AppUser user = jdbcTemplate.query(new PreparedStatementCreator() {
-	 
-	            @Override
-	            // preparedStatement for executing a statement many times, prevents sql injection attacks, preparedstatement is executed without having to be compiled first
-	            // get all users
-	            public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
-	                PreparedStatement ps = con.prepareStatement("select * from user where login=?");
-	                // int 1 => first argument placeholder
-	                ps.setString(1, login);
-	                return ps;
-	            }
-	        }, new ResultSetExtractor<AppUser>() {
-	            @Override
-	            public AppUser extractData(ResultSet rs) throws SQLException, DataAccessException {
-	            	// iterate through every row/user 
-	                if (rs.next()) {
-	                    AppUser user = new AppUser(rs.getInt("id"), rs.getString("login"), rs.getString("password"), rs.getString("fname"), rs.getString("lname"), rs.getString("email"));
-	                    return user;
-	                } else {
-	                    return null;
-	                }
-	            }
-	        });
-	        if (user != null) {
-	            return user;
-	        } else {
-	            return null;
-	        }
-	    }
-	   
-	   public AppUser findByEmail(String email) {
-		   AppUser user = jdbcTemplate.query(new PreparedStatementCreator() {
-	 
-	            @Override
-	            // preparedStatement for executing a statement many times, prevents sql injection attacks, preparedstatement is executed without having to be compiled first
-	            // get all users
-	            public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
-	                PreparedStatement ps = con.prepareStatement("select * from user where email=?");
-	                // int 1 => first argument placeholder
-	                ps.setString(1, email);
-	                return ps;
-	            }
-	        }, new ResultSetExtractor<AppUser>() {
-	            @Override
-	            public AppUser extractData(ResultSet rs) throws SQLException, DataAccessException {
-	            	// iterate through every row/user 
-	                if (rs.next()) {
-	                    AppUser user = new AppUser(rs.getInt("id"), rs.getString("login"), rs.getString("password"), rs.getString("fname"), rs.getString("lname"), rs.getString("email"));
-	                    return user;
-	                } else {
-	                    return null;
-	                }
-	            }
-	        });
-	        if (user != null) {
-	            return user;
-	        } else {
-	            return null;
-	        }
-	    }
+//	   public AppUser findByLogin(String login) {
+//		   AppUser user = jdbcTemplate.query(new PreparedStatementCreator() {
+//	 
+//	            @Override
+//	            // preparedStatement for executing a statement many times, prevents sql injection attacks, preparedstatement is executed without having to be compiled first
+//	            // get all users
+//	            public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
+//	                PreparedStatement ps = con.prepareStatement("select * from user where login=?");
+//	                // int 1 => first argument placeholder
+//	                ps.setString(1, login);
+//	                return ps;
+//	            }
+//	        }, new ResultSetExtractor<AppUser>() {
+//	            @Override
+//	            public AppUser extractData(ResultSet rs) throws SQLException, DataAccessException {
+//	            	// iterate through every row/user 
+//	                if (rs.next()) {
+//	                    AppUser user = new AppUser(rs.getInt("id"), rs.getString("login"), rs.getString("password"), rs.getString("fname"), rs.getString("lname"), rs.getString("email"), null);
+//	                    return user;
+//	                } else {
+//	                    return null;
+//	                }
+//	            }
+//	        });
+//	        if (user != null) {
+//	            return user;
+//	        } else {
+//	            return null;
+//	        }
+//	    }
+//	   
+//	   public AppUser findByEmail(String email) {
+//		   AppUser user = jdbcTemplate.query(new PreparedStatementCreator() {
+//	 
+//	            @Override
+//	            // preparedStatement for executing a statement many times, prevents sql injection attacks, preparedstatement is executed without having to be compiled first
+//	            // get all users
+//	            public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
+//	                PreparedStatement ps = con.prepareStatement("select * from user, role where user.email=?");
+//	                // int 1 => first argument placeholder
+//	                ps.setString(1, email);
+//	                return ps;
+//	            }
+//	        }, new ResultSetExtractor<AppUser>() {
+//	            @Override
+//	            public AppUser extractData(ResultSet rs) throws SQLException, DataAccessException {
+//	            	
+//	            	// iterate through every row/user 
+//	                if (rs.next()) {
+//	                    AppUser user = new AppUser(rs.getInt("id"), rs.getString("login"), rs.getString("password"), rs.getString("fname"), rs.getString("lname"), rs.getString("email"));
+//	                    return user;
+//	                } else {
+//	                    return null;
+//	                }
+//	            }
+//	        });
+//	        if (user != null) {
+//	            return user;
+//	        } else {
+//	            return null;
+//	        }
+//	    }
+//	
 
 
 
