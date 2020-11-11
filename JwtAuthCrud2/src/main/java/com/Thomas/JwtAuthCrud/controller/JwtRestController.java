@@ -7,6 +7,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -39,7 +40,8 @@ public class JwtRestController {
 	//
 
 	// get all users
-	@GetMapping()
+	@GetMapping("/all")
+	@PreAuthorize("hasRole('ROLE_ADMIN')")
 	public List<AppUser> getAllUsers() {
 		return userService.getAllUsers();
 	}
@@ -75,6 +77,7 @@ public class JwtRestController {
 
 	// find user by ID
 	@GetMapping("/{id}")
+	@PreAuthorize("hasRole('ROLE_ADMIN')")
 	public ResponseEntity<?> getUser(@PathVariable("id") Integer id) {
 		AppUser user = userService.findById(id);
 		if (user == null) {
@@ -87,8 +90,9 @@ public class JwtRestController {
 	
 
 	// update user attributes
+	@PreAuthorize("hasRole('ROLE_ADMIN')")
 	@PutMapping("/{id}")
-	public ResponseEntity<?> updateUser(@RequestBody AppUser updateRequest) {
+	public ResponseEntity<?> updateUser(@PathVariable("id") Integer id, @RequestBody AppUser updateRequest) {
 
 		if (userService.findById(updateRequest.getId()) == null) {
 			return new ResponseEntity<String>("ERROR: User with Id: " + updateRequest.getId() + " could not found.",
@@ -107,8 +111,9 @@ public class JwtRestController {
 		return new ResponseEntity<String>("User update successfully!", HttpStatus.OK);
 	}
 
-	// delete user by ID
+	// delete user by ID 
 	@DeleteMapping("/{id}")
+	@PreAuthorize("hasRole('ROLE_ADMIN')")
 	public ResponseEntity<?> deleteUser(@PathVariable("id") Integer id) {
 		AppUser user = userService.findById(id);
 		if (user == null) {
@@ -118,35 +123,26 @@ public class JwtRestController {
 		return new ResponseEntity<String>("User deleted successfully!", HttpStatus.OK);
 	}
 
-	@GetMapping("/findByLogin/{login}")
-	public ResponseEntity<?> findLoginUser(@PathVariable("login") String login) {
-		AppUser user = userService.findByLogin(login);
-		if (user == null) {
-			return new ResponseEntity<String>("ERROR: Could not find user with the login " + login,
-					HttpStatus.NOT_FOUND);
-		}
-		return new ResponseEntity<AppUser>(user, HttpStatus.OK);
-	}
-
-	@GetMapping("/getRolesById/{id}")
-	public ResponseEntity<?> getRolesById(@PathVariable("id") Integer id) {
-		AppUser user = userService.findById(id);
-		Collection<GrantedAuthority> grantedAuthorities = userService.getAuthorityRolesById(id);
-		if (user == null) {
-			return new ResponseEntity<String>("ERROR: Could not find authority roles for user with the id " + id,
-					HttpStatus.NOT_FOUND);
-		}
-		return new ResponseEntity<Collection>(grantedAuthorities, HttpStatus.OK);
-	}
-	
-	@GetMapping("/getUser/{id}")
-	public ResponseEntity<?> getWholeUser(@PathVariable("id") Integer id) {
-		AppUser user = userService.findById(id);
-		if (user == null) {
-			return new ResponseEntity<String>("ERROR: Could not find authority roles for user with the id " + id,
-					HttpStatus.NOT_FOUND);
-		}
-		return new ResponseEntity<AppUser>(user, HttpStatus.OK);
-	}
+//	// find user by login
+//	@GetMapping("/findByLogin/{login}")
+//	public ResponseEntity<?> findLoginUser(@PathVariable("login") String login) {
+//		AppUser user = userService.findByLogin(login);
+//		if (user == null) {
+//			return new ResponseEntity<String>("ERROR: Could not find user with the login " + login,
+//					HttpStatus.NOT_FOUND);
+//		}
+//		return new ResponseEntity<AppUser>(user, HttpStatus.OK);
+//	}
+//	//find all roles from user by id
+//	@GetMapping("/getRolesById/{id}")
+//	public ResponseEntity<?> getRolesById(@PathVariable("id") Integer id) {
+//		AppUser user = userService.findById(id);
+//		Collection<GrantedAuthority> grantedAuthorities = userService.getAuthorityRolesById(id);
+//		if (user == null) {
+//			return new ResponseEntity<String>("ERROR: Could not find authority roles for user with the id " + id,
+//					HttpStatus.NOT_FOUND);
+//		}
+//		return new ResponseEntity<Collection>(grantedAuthorities, HttpStatus.OK);
+//	}
 
 }

@@ -126,25 +126,25 @@ public class UserDao {
 			for(int count = 0; count < shortRoles.size(); count++) {
 				
 				if (count == 0 && shortRoles.get(count) == 1) {
-					grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
+					grantedAuthorities.add(new SimpleGrantedAuthority("ADMIN"));
 				} else if (count == 1 && shortRoles.get(count) == 1) {
-					grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_DEVELOP"));
+					grantedAuthorities.add(new SimpleGrantedAuthority("DEVELOP"));
 				} else if (count == 2 && shortRoles.get(count) == 1) {
-					grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_CCTID"));
+					grantedAuthorities.add(new SimpleGrantedAuthority("CCTID"));
 				} else if (count == 3 && shortRoles.get(count) == 1) {
-					grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_GTID"));
+					grantedAuthorities.add(new SimpleGrantedAuthority("GTID"));
 				} else if (count == 4 && shortRoles.get(count) == 1) {
-					grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_BILLING"));
+					grantedAuthorities.add(new SimpleGrantedAuthority("BILLING"));
 				} else if (count == 5 && shortRoles.get(count) == 1) {
-					grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_REGISTRY"));
+					grantedAuthorities.add(new SimpleGrantedAuthority("REGISTRY"));
 				} else if (count == 6 && shortRoles.get(count) == 1) {
-					grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_PURCHASE_READ"));
+					grantedAuthorities.add(new SimpleGrantedAuthority("PURCHASE_READ"));
 				} else if (count == 7 && shortRoles.get(count) == 1) {
-					grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_PURCHASE_WRITE"));
+					grantedAuthorities.add(new SimpleGrantedAuthority("PURCHASE_WRITE"));
 				} else if (count == 8 && shortRoles.get(count) == 1) {
-					grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_SALE_WRITE"));
+					grantedAuthorities.add(new SimpleGrantedAuthority("SALE_WRITE"));
 				} else if (count == 9 && shortRoles.get(count) == 1) {
-					grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_SQL"));
+					grantedAuthorities.add(new SimpleGrantedAuthority("SQL"));
 				} else {
 				}
 				

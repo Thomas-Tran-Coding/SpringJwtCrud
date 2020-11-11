@@ -30,6 +30,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 	@Autowired 
 	private JwtUtil jwtUtil;
 	
+	// checking if incoming jwt is valid if yes save in  security context
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
@@ -43,23 +44,23 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 			try {
 				jwt = authorizationHeader.substring(7);
 				username = jwtUtil.extractUsername(jwt);
+			
 			} catch (IllegalArgumentException e) {
                 logger.error("ERROR: An error occured during getting username from token", e);
             } catch (ExpiredJwtException e) {
                 logger.error("ERROR: The token is expired and not valid anymore", e);
             } catch(SignatureException e){
-                logger.error("ERROR: Authentication failed. Username or Password not valid.");
-            }
+                logger.error("ERROR: Authentication failed. Username, password or signature is not valid.");
+            } 
 			
 		} else {
-            logger.error("ERROR: Couldn't find bearer string, will ignore the header");
+            logger.error("ERROR: Could not set authentication in security context.");
         }
 		
 		if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 			UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
 			if(jwtUtil.validateToken(jwt, userDetails)) {
-				UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
-						userDetails, null, userDetails.getAuthorities());
+				UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
 				usernamePasswordAuthenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 				SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
 			}
