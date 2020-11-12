@@ -2,6 +2,8 @@ package com.Thomas.JwtAuthCrud.controller;
 
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -109,13 +111,26 @@ public class JwtRestController {
 	// delete user by ID
 	@DeleteMapping("/{id}")
 	@PreAuthorize("hasRole('ROLE_ADMIN')")
-	public ResponseEntity<?> deleteUser(@PathVariable("id") Integer id) {
+	public ResponseEntity<?> deleteUser(@PathVariable("id") Integer id, HttpServletRequest request) {
+		final String authorizationHeader = request.getHeader("Authorization");
+		String jwt = authorizationHeader.substring(7);
+		String username = jwtUtil.extractUsername(jwt);
+		
 		AppUser user = userService.findById(id);
 		if (user == null) {
 			return new ResponseEntity<String>("ERROR: Could not delete user with the id " + id, HttpStatus.NOT_FOUND);
 		}
-		userService.deleteById(id);
-		return new ResponseEntity<String>("User deleted successfully!", HttpStatus.OK);
+		
+		if(username.equals(user.getLogin())) {
+			return new ResponseEntity<String>("ERROR: Self deletion is not allowed!", HttpStatus.BAD_REQUEST);
+		} else {
+
+			userService.deleteById(id);
+			return new ResponseEntity<String>("User deleted successfully!", HttpStatus.OK);
+		}
+		
+		
+		
 	}
 
 //	// find user by login
