@@ -36,7 +36,6 @@ public class UserDao {
 	JdbcTemplate jdbcTemplate;
 	
 	// get all users
-
 	public List<AppUser> getAllUsers() {
 		try {
 			return jdbcTemplate.query("SELECT * FROM user,role where user.id = role.user_id", new ResultRowMapper());
@@ -53,10 +52,50 @@ public class UserDao {
 			return null;
 		}
 	}
+	
+	// update a user
+	public void updateUser(AppUser user) {
+		try {
+			Object[] userParams = { user.getLogin(),  
+									user.getPassword(), 
+									user.getFname(), 
+									user.getLname(),
+									user.getEmail(),
+									user.getId(),};
+			jdbcTemplate.update("update user set login = ?, password = ?, fname = ?, lname = ?, email =? where Id=?", userParams);
+			
+			Object[] roleParams = { user.getRole().getId(), 
+									user.getRole().getRole_admin(), 
+									user.getRole().getRole_develop(), 
+									user.getRole().getRole_cctid(), 
+									user.getRole().getRole_gtid(), 
+									user.getRole().getRole_billing(),
+									user.getRole().getRole_registry(),
+									user.getRole().getRole_purchase_read(), 
+									user.getRole().getRole_purchase_write(), 
+									user.getRole().getRole_sale_write(), 
+									user.getRole().getRole_sql(),
+									user.getRole().getUserId(), };
+			
+			jdbcTemplate.update("update role set id = ?, role_admin = ?, role_develop = ?, role_cctld = ?, role_gtld = ?, role_billing = ?, role_registry = ?, role_purchase_read = ?, role_purchase_write = ?, role_sale_write = ?, role_sql = ? where user_id = ?", roleParams);
+		} catch(EmptyResultDataAccessException e) {
+	        throw new RuntimeException("ERROR: User ID does not exist!");
+		} catch(IncorrectResultSizeDataAccessException e) {
+			  throw new RuntimeException("ERROR: Duplicate user ID!");
+		}
+		
+	}
 
 	// delete a user by ID
 	public void deleteById(int id) {
-		jdbcTemplate.update("delete from user where id = ?", id);
+		try {
+
+			jdbcTemplate.update("delete from user where id = ?", id);
+		} catch(EmptyResultDataAccessException e) {
+	        throw new RuntimeException("ERROR: User ID does not exist");
+		} catch(IncorrectResultSizeDataAccessException e) {
+			  throw new RuntimeException("ERROR:Duplicate user ID!");
+		}
 	}
 
 	// save user by ID
@@ -85,22 +124,11 @@ public class UserDao {
 			
 			jdbcTemplate.update("insert into role values(?,?,?,?,?,?,?,?,?,?,?,?)", roleParams);
 		} catch(EmptyResultDataAccessException e) {
-	        throw new RuntimeException("User ID does not exist");
+	        throw new RuntimeException("ERROR: User ID does not exist");
 		} catch(IncorrectResultSizeDataAccessException e) {
-			  throw new RuntimeException("More than one users with the same Id .......");
+			  throw new RuntimeException("ERROR:Duplicate user ID!");
 		}
 	      
-	}
-
-
-	// find user role by ID
-	public Role findUserRole(int id) {
-		try {
-			return (Role) this.jdbcTemplate.queryForObject("select * from role where id = ?", new Object[] { id },
-					new RoleRowMapper());
-		} catch (EmptyResultDataAccessException ex) {
-			return null;
-		}
 	}
 
 	// get roles of a user in a collection
@@ -172,39 +200,17 @@ public class UserDao {
 			return null;
 		}	
 	}
-
-	// update a user
-	public void updateUser(AppUser user) {
+	
+	// find user role by ID
+	public Role findUserRole(int id) {
 		try {
-			Object[] userParams = { user.getLogin(),  
-									user.getPassword(), 
-									user.getFname(), 
-									user.getLname(),
-									user.getEmail(),
-									user.getId(),};
-			jdbcTemplate.update("update user set login = ?, password = ?, fname = ?, lname = ?, email =? where Id=?", userParams);
-			
-			Object[] roleParams = { user.getRole().getId(), 
-									user.getRole().getRole_admin(), 
-									user.getRole().getRole_develop(), 
-									user.getRole().getRole_cctid(), 
-									user.getRole().getRole_gtid(), 
-									user.getRole().getRole_billing(),
-									user.getRole().getRole_registry(),
-									user.getRole().getRole_purchase_read(), 
-									user.getRole().getRole_purchase_write(), 
-									user.getRole().getRole_sale_write(), 
-									user.getRole().getRole_sql(),
-									user.getRole().getUserId(), };
-			
-			jdbcTemplate.update("update role set id = ?, role_admin = ?, role_develop = ?, role_cctld = ?, role_gtld = ?, role_billing = ?, role_registry = ?, role_purchase_read = ?, role_purchase_write = ?, role_sale_write = ?, role_sql = ? where user_id = ?", roleParams);
-		} catch(EmptyResultDataAccessException e) {
-	        throw new RuntimeException("User ID does not exist");
-		} catch(IncorrectResultSizeDataAccessException e) {
-			  throw new RuntimeException("More than one users with the same Id .......");
+			return (Role) this.jdbcTemplate.queryForObject("select * from role where id = ?", new Object[] { id },
+					new RoleRowMapper());
+		} catch (EmptyResultDataAccessException ex) {
+			return null;
 		}
-		
 	}
+
 	
 //	   public AppUser findByLogin(String login) {
 //		   AppUser user = jdbcTemplate.query(new PreparedStatementCreator() {

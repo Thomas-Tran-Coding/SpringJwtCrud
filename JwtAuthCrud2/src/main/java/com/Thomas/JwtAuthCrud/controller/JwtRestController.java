@@ -1,14 +1,12 @@
 package com.Thomas.JwtAuthCrud.controller;
 
-import java.util.Collection;
-
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.GrantedAuthority;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,6 +21,7 @@ import com.Thomas.JwtAuthCrud.security.jwt.JwtUtil;
 import com.Thomas.JwtAuthCrud.security.services.UserService;
 
 import com.Thomas.JwtAuthCrud.model.AppUser;
+
 @RestController
 @RequestMapping("/user")
 public class JwtRestController {
@@ -37,7 +36,6 @@ public class JwtRestController {
 
 	@Autowired
 	JwtUtil jwtUtil;
-	//
 
 	// get all users
 	@GetMapping("/all")
@@ -61,12 +59,12 @@ public class JwtRestController {
 		}
 
 		// Create new user's account
-		AppUser user = new AppUser( signUpRequest.getId(), 
+		AppUser user = new AppUser(	signUpRequest.getId(), 
 									signUpRequest.getLogin(),
 									encoder.encode(signUpRequest.getPassword()), 
 									signUpRequest.getFname(), 
 									signUpRequest.getLname(),
-									signUpRequest.getEmail(),
+									signUpRequest.getEmail(), 
 									signUpRequest.getRole());
 
 		userService.saveUser(user);
@@ -81,37 +79,34 @@ public class JwtRestController {
 	public ResponseEntity<?> getUser(@PathVariable("id") Integer id) {
 		AppUser user = userService.findById(id);
 		if (user == null) {
-			return new ResponseEntity<String>("ERROR: Could not find user with the id " + id,
-					HttpStatus.NOT_FOUND);
+			return new ResponseEntity<String>("ERROR: Could not find user with the id " + id, HttpStatus.NOT_FOUND);
 		}
 		return new ResponseEntity<AppUser>(user, HttpStatus.OK);
 	}
-	
-	
 
 	// update user attributes
 	@PreAuthorize("hasRole('ROLE_ADMIN')")
 	@PutMapping("/{id}")
 	public ResponseEntity<?> updateUser(@PathVariable("id") Integer id, @RequestBody AppUser updateRequest) {
 
-		if (userService.findById(updateRequest.getId()) == null) {
+		if (userService.findById(id) == null) {
 			return new ResponseEntity<String>("ERROR: User with Id: " + updateRequest.getId() + " could not found.",
 					HttpStatus.NOT_FOUND);
 		}
 		// update user
-		AppUser updatedUser = new AppUser(  updateRequest.getId(), 
+		AppUser updatedUser = new AppUser(	updateRequest.getId(), 
 											updateRequest.getLogin(),
 											encoder.encode(updateRequest.getPassword()), 
 											updateRequest.getFname(), 
 											updateRequest.getLname(),
-											updateRequest.getEmail(),
+											updateRequest.getEmail(), 
 											updateRequest.getRole());
 
 		userService.updateUser(updatedUser);
 		return new ResponseEntity<String>("User update successfully!", HttpStatus.OK);
 	}
 
-	// delete user by ID 
+	// delete user by ID
 	@DeleteMapping("/{id}")
 	@PreAuthorize("hasRole('ROLE_ADMIN')")
 	public ResponseEntity<?> deleteUser(@PathVariable("id") Integer id) {
