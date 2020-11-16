@@ -80,8 +80,6 @@ public class UserDao {
 			jdbcTemplate.update("update role set id = ?, role_admin = ?, role_develop = ?, role_cctld = ?, role_gtld = ?, role_billing = ?, role_registry = ?, role_purchase_read = ?, role_purchase_write = ?, role_sale_write = ?, role_sql = ? where user_id = ?", roleParams);
 		} catch(EmptyResultDataAccessException e) {
 	        throw new RuntimeException("ERROR: User ID does not exist!");
-		} catch(IncorrectResultSizeDataAccessException e) {
-			  throw new RuntimeException("ERROR: Duplicate user ID!");
 		}
 		
 	}
@@ -93,12 +91,10 @@ public class UserDao {
 			jdbcTemplate.update("delete from user where id = ?", id);
 		} catch(EmptyResultDataAccessException e) {
 	        throw new RuntimeException("ERROR: User ID does not exist");
-		} catch(IncorrectResultSizeDataAccessException e) {
-			  throw new RuntimeException("ERROR:Duplicate user ID!");
 		}
 	}
 
-	// save user by ID
+	// save the user 
 	public void saveUser(AppUser user) {
 		try {
 			Object[] userParams = { user.getId(), 
@@ -151,8 +147,10 @@ public class UserDao {
 			shortRoles.add(role.getRole_sale_write());
 			shortRoles.add(role.getRole_sql());
 			
+			// transform the List<Short> shortRoles to List<GrantedAuthority> grantedAuthorities
 			for(int count = 0; count < shortRoles.size(); count++) {
 				
+				// if first element in list == 0 and the role is given a 1 then the add ADMIN as first value in list and so on...
 				if (count == 0 && shortRoles.get(count) == 1) {
 					grantedAuthorities.add(new SimpleGrantedAuthority("ADMIN"));
 				} else if (count == 1 && shortRoles.get(count) == 1) {

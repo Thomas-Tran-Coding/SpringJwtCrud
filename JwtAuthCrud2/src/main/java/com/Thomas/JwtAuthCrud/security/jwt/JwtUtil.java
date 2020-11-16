@@ -29,8 +29,6 @@ import io.jsonwebtoken.SignatureAlgorithm;
 @Service
 public class JwtUtil {
 
-	private static final Logger logger = LoggerFactory.getLogger(JwtUtil.class);
-
 	@Value("${secret_key}")
 	private String SECRET_KEY;
 	
