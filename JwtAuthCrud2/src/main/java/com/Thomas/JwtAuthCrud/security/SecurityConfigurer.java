@@ -49,7 +49,7 @@ public class SecurityConfigurer extends WebSecurityConfigurerAdapter  {
 			.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 		http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
 	}
-	
+	// bean doesnt exist anymore, so we pass a default bean from WebSecurityAdapter
 	@Override
 	@Bean
 	public AuthenticationManager authenticationManagerBean() throws Exception {

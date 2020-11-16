@@ -50,13 +50,18 @@ public class JwtRestController {
 	@PostMapping("/signup")
 	public ResponseEntity<?> registerUser(@RequestBody AppUser signUpRequest) {
 
+		if (userService.findById(signUpRequest.getId()) != null) {
+			return new ResponseEntity<String>("ERROR: ID: " + signUpRequest.getId() + " is already in use!",
+					HttpStatus.BAD_REQUEST);
+		}
+		
 		if (userService.findByLogin(signUpRequest.getLogin()) != null) {
-			return new ResponseEntity<String>("ERROR: Login " + signUpRequest.getLogin() + " is already in use!",
+			return new ResponseEntity<String>("ERROR: Login: " + signUpRequest.getLogin() + " is already in use!",
 					HttpStatus.BAD_REQUEST);
 		}
 
 		if (userService.findByEmail(signUpRequest.getEmail()) != null) {
-			return new ResponseEntity<String>("ERROR: User email" + signUpRequest.getEmail() + " is already taken.",
+			return new ResponseEntity<String>("ERROR: User email: " + signUpRequest.getEmail() + " is already taken.",
 					HttpStatus.BAD_REQUEST);
 		}
 
@@ -129,30 +134,6 @@ public class JwtRestController {
 			return new ResponseEntity<String>("User deleted successfully!", HttpStatus.OK);
 		}
 		
-		
-		
 	}
-
-//	// find user by login
-//	@GetMapping("/findByLogin/{login}")
-//	public ResponseEntity<?> findLoginUser(@PathVariable("login") String login) {
-//		AppUser user = userService.findByLogin(login);
-//		if (user == null) {
-//			return new ResponseEntity<String>("ERROR: Could not find user with the login " + login,
-//					HttpStatus.NOT_FOUND);
-//		}
-//		return new ResponseEntity<AppUser>(user, HttpStatus.OK);
-//	}
-//	//find all roles from user by id
-//	@GetMapping("/getRolesById/{id}")
-//	public ResponseEntity<?> getRolesById(@PathVariable("id") Integer id) {
-//		AppUser user = userService.findById(id);
-//		Collection<GrantedAuthority> grantedAuthorities = userService.getAuthorityRolesById(id);
-//		if (user == null) {
-//			return new ResponseEntity<String>("ERROR: Could not find authority roles for user with the id " + id,
-//					HttpStatus.NOT_FOUND);
-//		}
-//		return new ResponseEntity<Collection>(grantedAuthorities, HttpStatus.OK);
-//	}
 
 }
